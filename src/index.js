@@ -1,5 +1,6 @@
 import 'dotenv/config';
 
+import uuidv4 from 'uuid/v4';
 import cors from 'cors';
 import express from 'express';
 import { ApolloServer, gql } from 'apollo-server-express';
@@ -20,7 +21,7 @@ const users = {
   },
 };
 
-const messages = {
+let messages = {
   1: {
     id: '1',
     text: 'This is message 1',
@@ -41,6 +42,11 @@ const schema = gql`
 
     messages: [Message!]!
     message(id: ID!): Message!
+  }
+
+  type Mutation {
+    createMessage(text: String!): Message!
+    deleteMessage(id: ID!): Boolean!
   }
 
   type User {
@@ -64,6 +70,31 @@ const resolvers = {
 
     messages: () => Object.values(messages),
     message: (_, { id }) => messages[id],
+  },
+
+  Mutation: {
+    createMessage: (_, { text }, { me }) => {
+      const id = uuidv4();
+      const message = {
+        id,
+        text,
+        userId: me.id,
+      };
+
+      messages[id] = message;
+      users[me.id].messageIds.push(id);
+    },
+    deleteMessage: (_, { id }) => {
+      const { [id]: message, ...otherMessages } = messages;
+
+      if (!message) {
+        return false;
+      }
+
+      messages = otherMessages;
+
+      return true;
+    },
   },
 
   Message: {
