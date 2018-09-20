@@ -1,0 +1,26 @@
+{
+  "name": "notes-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Ryan Yogan <ryanyogan@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon --exec babel-node --presets env,stage-2 src/index.js"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-eslint": "^9.0.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-stage-2": "^6.24.1",
+    "eslint": "^5.6.0",
+    "eslint-config-equimper": "^2.2.2",
+    "eslint-config-prettier": "^3.0.1",
+    "eslint-plugin-jest": "^21.22.0",
+    "eslint-plugin-prettier": "^2.6.2",
+    "nodemon": "^1.18.4",
+    "prettier": "^1.14.3"
+  },
+  "dependencies": {
+    "dotenv": "^6.0.0"
+  }
+}
