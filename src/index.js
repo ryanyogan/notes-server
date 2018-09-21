@@ -6,7 +6,7 @@ import { ApolloServer } from 'apollo-server-express';
 
 import schema from './schema';
 import resolvers from './resolvers';
-import models from './models';
+import models, { sequelize } from './models';
 
 const app = express();
 app.use(cors());
@@ -14,14 +14,55 @@ app.use(cors());
 const server = new ApolloServer({
   typeDefs: schema,
   resolvers,
-  context: {
+  context: async () => ({
     models,
-    me: models.users[1],
-  },
+    me: await models.User.findByLogin('ryanyogan'),
+  }),
 });
 
 server.applyMiddleware({ app, path: '/graphql' });
 
-app.listen({ port: 8000 }, () => {
-  console.log('Server is listening on port :8000/graphql'); // eslint-disable-line
+const eraseDatabaseOnSync = true;
+
+sequelize.sync({ force: eraseDatabaseOnSync }).then(async () => {
+  if (eraseDatabaseOnSync) {
+    createUsersWithMessages();
+  }
+
+  app.listen({ port: 8000 }, () => {
+    console.log('Server is listening on port :8000/graphql'); // eslint-disable-line
+  });
 });
+
+const createUsersWithMessages = async () => {
+  await models.User.create(
+    {
+      username: 'ryanyogan',
+      messages: [
+        {
+          text: 'This is the first message from Ryan',
+        },
+      ],
+    },
+    {
+      include: [models.Message],
+    },
+  );
+
+  await models.User.create(
+    {
+      username: 'johndoe',
+      messages: [
+        {
+          text: 'This is the first message from John',
+        },
+        {
+          text: 'This is the second message from John',
+        },
+      ],
+    },
+    {
+      include: [models.Message],
+    },
+  );
+};
